@@ -1,0 +1,440 @@
+
+博客园Logo
+首页
+新闻
+博问
+专区
+闪存
+班级
+代码改变世界
+搜索
+注册
+登录
+返回主页
+陈财明博客
+不积跬步，无以至千里；不积小流，无以成江海
+博客园
+首页
+新随笔
+联系
+订阅
+管理
+C#的csc编译器的用法总结
+CSC.exe把Visual C#程序代码编译成IL文件时，有着很多参数和开关选项。正确的了解和运用这些参数和开关有时会解
+
+决一些看似很棘手的问题。下面就通过一张表来大致说明一下这些参数和开关的具体作用。这些参数和开关选项是按照
+
+字母顺序来排列的。其中带"*"，是一些常用的参数或开关。
+
+///////////////////////////////////////////////////////////////////////////////
+
+命令行示例
+编译 File.cs 以产生 File.exe：
+csc File.cs
+编译 File.cs 以产生 File.dll：
+csc /target:library File.cs
+编译 File.cs 并创建 My.exe：
+csc /out:My.exe File.cs
+通过使用优化和定义 DEBUG 符号，编译当前目录中所有的 C# 文件。输出为 File2.exe：
+csc /define:DEBUG /optimize /out:File2.exe *.cs
+编译当前目录中所有的 C# 文件，以产生 File2.dll 的调试版本。不显示任何徽标和警告：
+csc /target:library /out:File2.dll /warn:0 /nologo /debug *.cs
+将当前目录中所有的 C# 文件编译为 Something.xyz（一个 DLL）：
+csc /target:library /out:Something.xyz *.cs
+
+///////////////////////////////////////////////////////////////////////////////
+
+在做一个page时用到tabscript了， 记得IE WebControl好像有的， 去网上找吧。结果发现Microsoft已经不支持这个
+
+控件了，也不提供下载了。。。 没办法，只好又找Google帮忙了。 很快就找到了。 安装完后run build.bat. 结果只
+
+把runtime的文件复制过来了， 没有生成DLL文件。。。 看了看build.bat是这么写的：
+@if "%_echo%"=="" echo off
+if not exist build mkdir build
+csc.exe /out:build\Microsoft.Web.UI.WebControls.dll @IEWebControls.rsp
+xcopy src\Runtime build\Runtime /E /Y /I /Q
+注意红色的， 它用的是CSC.exe 没有写绝对的路径。可是我的PATH里根本就没有注册过。 改成
+C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322/csc.exe /out:build\Microsoft.Web.UI.WebControls.dll
+
+@IEWebControls.rsp
+就可以了， 不过有个警告：src\treeview.cs(1193,13): warning CS0618:
+
+'System.Xml.Xsl.XslTransform.Transform(System.Xml.XPath.XPathNavigator, System.Xml.Xsl.XsltArgumentList,
+
+System.IO.Stream)' is obsolete: 'You should pass XmlResolver to Transform() method'
+呵呵，我没有管它，能用就可以了。 因为要放到服务器上，所以就不能按照它的说明文件把运行需要的文件复制到
+
+c:\Inetpub\wwwroot. 怎么办呢？ 在web.config里就可以设置， 加入下面的代码就可以了。
+<configSections>
+<section name="MicrosoftWebControls" type="System.Configuration.NameValueSectionHandler, System,
+
+System.Configuration.NameValueSectionHandler, System, Version=1.0.3300.0, Culture=neutral,
+
+PublicKeyToken=b77a5c561934e089" />
+</configSections>
+<MicrosoftWebControls>
+     <add key="CommonFiles" value="/website/webctrl_client/1_0" />
+</MicrosoftWebControls>
+////////////////////////////////////////////////////////////////////////////////////
+
+
+
+选项 用途
+@ * 指定响应文件。
+/?, /help 在控制台的计算机屏幕上显示编译器的选项
+/addmodule 指定一个或多个模块为集会的一部分
+/baseaddress指定装入DLL的基础地址
+/bugreport 创建一个文件，该文件包含是报告错误更加容易的信息
+/checked 如果整数计算溢出数据类型的边界，则在运行时产生一个例外的事件
+/codepage 指定代码页以便在编译中使用的所有源代码文件
+/debug * 发送调试信息
+/define 定义预处理的程序符号
+/doc * 把处理的文档注释为XML文件
+/fullpaths 指定编译输出文件的反正路径
+/incremental 对源代码的文件进行增量编译
+/linkresource 把.NET资源链接到集合中
+/main 指定Main方法的位置
+/nologo 禁止使用编译器的标志信息
+/nooutput 编译文件但不输出文件
+/nostdlib 不导出标准库（即mscorlib.dll）
+/nowarn 编译但编译器并不显示警告功能
+/optimize 打开或者关闭优化
+/out * 指定输出文件
+/recurse 搜索编译源文件的子目录
+/reference * 从包含集合的文件中导入元数据
+/target * 指定输出文件的格式
+/unsafe 编译使用非安全关键字的代码
+/warn 设置警告级别
+/warnaserror 提升警告为错误
+/win32icon 插入一个.ico文件导输出文件中去
+/win32res 插入一个Win32资源导输出文件中
+　　具体说明：
+　　一．@
+　　这个选项是用来指定响应文件。响应文件是一种包含了许多编译选项的文件。这些编译选项将和源代码文件一起由
+
+编译器进行处理。一般来说此种响应文件是以文本文件形式出现。他的扩展名是.rsp。在响应文件中是用＃符号表示开
+
+始的注释。
+　　例：以下是一个响应文件resp1.rsp的内容：
+　　# 这是一个简单的响应文件，文件名称为resp1.rsp
+　　#使用方法: csc @resp1.rsp
+/target:exe /out:sample.exe sample.cs
+　　此响应文件的作用就是把sample.cs文件编译成sample.exe文件。如果在一次编译中要指定多个响应文件，可以指
+
+定多个响应文件选项，如：
+@file1.rsp @file2.rsp
+　　二．/?和/help
+　　这个选项应该不必多说，那些用过DOS程序的人，大概都会用这个选项。
+　　三．/addmodule
+　　本选项是使编译器搜集从用户正在编译的工程到可用文件中所以类型的信息。所有添加了/addmodule的模块在运行
+
+时必须与输出文件在同一目录中。这就是说，用户可以在编译时指定任何目录中的模块，但在运行时这个模块必须在应
+
+用程序目录中。文件中不能包含汇编名单。例如：如果输出文件用/taarget:module创建，其元数据可以用/addmodule
+
+导入。
+　　例子：把二个模块加入myProject.cs中
+csc /addmodule:module1.dll;module2.dll myProject.cs
+　　四．/baseaddress
+　　本选项允许用户指定载入DLL时的首选地址，这个首选地址可以是十进制、十六进制、八进制。DLL的缺省首选地址
+
+在.Net运行时设置。如果目标文件不是DLL文件，这个选项将被忽略。
+　　例子：把myLibrary.cs 编译程DLL文件，并且当此DLL在.Net运行环境被载入时的地址是0x1111000
+csc /baseaddres:0x1111000 /target:library myLibrary.cs
+　　五．/bugreport
+　　这个选项用来报告编译时的错误信息。在报告中包含以下内容：
+　　1）.编译中所有源代码的一个拷贝
+　　2）.在编译中所有的编译选项
+　　3）.编译信息，包括编译器、运行时间、操作系统的版本信息
+　　4）.编译器输出
+　　5）.问题的描述
+　　6）.如何解决问题的描述
+　　例子：生成一个bugs.txt文件，并把错误报告放在文件里面
+csc /bugreport:bugs.txt Hello.cs
+　　六．/checked
+　　此选项指定不在检验或或者未检验关键字范围内以及导致超出数据类型范围的值的整数计算语句是否产生运行例外
+
+。具体的说就是，如果不在检验或者未检验关键字范围内的整数计算语句产生的值在数据类型允许的范围之外，并且在
+
+编译中使用了/checked+(/checked)，该语句就会在运行时产生例外，如果在编译时使用了/checked-，在运行时该语句
+
+就不会产生例外。
+　　例子：编译myMath.cs，并且指定一个不在检验或者未检验关键字范围内的整数计算语句（且其产生的值超出数据
+
+类型的范围），将在运行时引起例外。
+csc /checked+ myMath.cs
+　　七．/codepage
+　　如果用户编译的一个或者多个源代码不使用计算机上的默认代码页，可以使用/codepage选项来指定希望使用的代
+
+码页。/codepage适用于编译中所有的源代码文件。
+　　如果源代码文件在计算机上的同一个代码页位置创建，或者源代码文件用UNICODE或者UTF-8来创建，用户就不需要
+
+使用/codepage了。
+　　八．/debug
+　　此选项是在调试时候使用的，当调试者启用了这个选项来调试自己的程序，将会创建一个.pdb文件，并把各种调试
+
+信息写到此文件里。有2中选项来指定调试的类型：
+　　/debug [+/-] :当选用/debug +就会把创建.pdb文件，并把调试信息存储到里面；/debug -是一个缺省设置，就是
+
+不产生任何调试信息。
+　　/debug:[full/pdbonly] :当使用/debug:full就是创建缺省的调试信息，有点类似/debug+选项。/debug: pdbonly
+
+选项是创建.pdb文件，并且你只能使用源代码调试在调试工具里。
+　　例子：编译Hello.cs并且为Hello.cs创建调试信息
+　　 csc /debug+ HelloWorld.cs
+　　九．/define
+　　此选项在程序中定义了一个符号，他和在源程序中使用#define预处理程序指示功能相同，此符号保持已定义状态
+
+，直到源文件中的#undef指示符删除定义或者编译器已到达了文件末尾。你可以用/d简写来代替。
+　　例子：下面是my.cs的源程序
+using System;
+public class myBuild{
+public static void Main() {
+#if (final)
+Console.WriteLine("Final Build");
+#else
+Console.WriteLine("Trial Build");
+#endif
+}
+}
+　　如果用csc /define:final my.cs来编译就会显示"Final Build"，如果没有/define，编译后执行就会显示"Trial
+
+Build"。
+　　十．/doc
+　　文档在当今已经变得愈来愈重要了，一个好的程序应该配有相当的文档。如果你在写程序的文档中用的是"///"标
+
+识符来注释。当你使用/doc选项来编译时，你的所以注释文档将会自动的保留在一个XML文件中。
+　　例子：以下是my.cs 的源程序
+using System ;
+///
+/// This is a sample class that has some documentation
+///
+public class myDocument {
+///
+/// Main entry point of the class
+///
+public static void Main (string[] argv)
+{
+Console.WriteLine("A Sample Class") ;
+}
+}
+　　用下列编译语句会产生my.xml文件，看看my.xml文件到底存储了什么东西。
+Csc /doc:my.xml my.cs
+　　十一./fullpaths
+　　在默认情况下，编译产生的错误或者警告都只会指明发现错误的文件名称，加入此选项使得在编译器产生错误或者
+
+警告的时候会显示完整的路径。你可以把上面的my.cs程序语法搞错，再用 csc /fullpaths my.cs 和 csc my.cs分别
+
+编译，看看错误提示有什么不同。
+　　十二./incremental
+　　本选项主要是激活增量编译器，这种编译器只对上次编译后发生改变的函数进行编译。如果在编译时候选用
+
+了/debug选项，调试信息的状态存储在相应的.pdb文件中。除此编译时的信息都存储在.incr文件中，此.incr文件的名
+
+称为output_file_name.extension.incr。即如果输出文件时out.exe，则此文件对应的incr文件是out.exe.incr文件。
+　　例子：利用增量编译器来编译文件
+csc /incremental /out:my.exe my.cs
+　　如果编译成功则会产生2个文件，分别是：my.exe和my.exe.incr。
+　　十三./linkresource
+　　这个选项就是在输出文件中创建到.Net资源的链接。他的简写是/linkres。资源文件就是在那些在工程文件中使用
+
+到的所有的资源，像图片、声音等。这个选项只是对于资源文件建立链接，这样有助于管理使用同一资源的程序，而不
+
+需要多个副本。此选项的具体语法如下：
+/linkresource:filename,identifier,mimetype
+　　其中：
+　　filename:是想建立链接的.Net的资源文件
+　　identifier(可选)：资源的逻辑名称，该名称用于载入资源，默认名称是文件名称。
+　　mimetype(可选)：是一个代表资源的媒介类型的字符串。默认为空。
+　　例子:在文件中建立一个指向reso.resource的链接
+csc /linkres:reso.resource myResource.cs
+　　十四./main
+　　当我们编译二个或者多个拥有Main方法的Class，我们可以使用这个选项让用户指定最终的输出文件中的使用那个
+
+Main的方法。
+　　例子：编译二个文件，但输出文件中的Main方法来自Main1 Class
+csc myMain1.cs myMain2.cs /main:Main1
+　　十五./nologo
+　　这个选项禁止在编译器启动时显示开始标志和编译过程中显示报告信息。
+　　例子：
+csc /nologo my.cs
+　　十六./nooutput
+　　编译文件，但不创建任何输出文件。用户可以看到任何编译错误和警告。
+　　例子：
+csc /nooutput my.cs
+　　十七./nostdlib
+　　这个选项禁止导入mscorlib.dll。这个DLL包含了这个系统名称空间。当用户希望使用自己的系统名称空间时，一
+
+般才会使用此选项。
+　　例子：编译文件，但不导入mscorlib.dl
+csc /nooutput myOutput.cs
+　　十八./nowarn
+　　本选项是在编译过程中禁止指定的警告类型。如果是禁止多个警告类型，用逗号分隔。
+例子：在编译过程中禁止警告类型CS0108和CS0109
+csc /nowarn:108,109 Warn.cs
+　　十九./optimize
+　　本选项激活或者禁用由编译器执行优化。优化的结果是使得输出文件更小、更快、更有效率。缺省是/optimize执
+
+行优化，如果你选用了/optimize-则禁止优化。/o是/optimize的简写。
+　　例子:编译文件，并禁止优化
+csc /optimise- my.cs
+　　二十./out
+　　在没有指定输出文件的情况下，如果通过编译器编译后文件是EXE文件，则输出文件将从包含Main方法的源代码的
+
+文件中获得名字；如果编译后的文件是DLL文件，将从第一个源代码文件中获得名字。如果用户想要指定输出文件名称
+
+，就可以使用此选项。
+　　例子：编译HelloWord.cs文件，并把输出文件命名为Hello.exe
+csc /out:Hello.exe helloworld.cs
+　　二十一./recurse
+　　此选项允许用户编译在指定目录或者工程目录的所以子目录中的所有源代码文件。用户可以使用通配符来编译工程
+
+目录下的所有匹配文件。
+　　例子：编译/dir1/dir2目录下及其下级目录中的所有C#文件，并生成dir2.dll
+csc /target:library /out:dir2.dll /recurse: dir1\dir2\*.cs
+　　二十二./refrence
+　　此选项可使得当前编译工程使用指定文件中的公共类型信息。这个选项对于初学者是很重要的。此选项的简写是/r
+
+。你必须引用在程序代码中使用"using"关键字导入的所有文件，如果在你的程序中，使用了自己编写的类库，在编译
+
+时也必须引用。
+　　例子：编译文件，并引用在程序中使用的文件
+csc /r:system.dll;myExec.exe;myLibrary.dll myProject.cs
+　　(注：其中那个myExec.exe和myLibrary.dll时自己创建的)
+　　二十三./target
+　　这个选项是告诉编译器你所想得到什么类型的输出文件。除非使用/target:module选项，其他选项创建的输出文件
+
+都包含着汇编名单。汇编名单存储着编译中所有文件的信息。在一个命令行中如果生成多个输出文件，但只创建一个汇
+
+编名单，并存储在第一个输出文件中。
+　　下面是/target的4种用法：
+　　/target:exe 创建一个可执行（EXE）的控制台应用程序
+　　/target:library 创建一个代码库（DLL）
+　　/target:winexe 创建一个windows程序（EXE）
+　　/target:module 创建一个模块（DLL）
+　　例子：
+　　csc /target:exe myProj.cs // 创建一个EXE文件
+　　csc /target:winexe myProject.cs file://创建一个windows程序
+　　csc /target:library myProject.cs file://创建一个代码库
+　　csc /target:module myProject.cs file://创建一个模块
+　　二十四./resource
+　　此选项和/linkresource正好相反。他的作用是把.Net资源文件嵌入到输出文件中，参数、用法都和/linkresource
+
+也相同，具体可参考前面/linkresource选项。
+　　二十五./unsafe
+　　此选项是告诉编译器采用非安全模式编译文件
+　　例子：用非安全模式编译my.cs
+csc /unsafe my.cs
+　　二十六./warn
+　　使用本选项是在编译过程中采用什么等级的警告级别
+警告级别 含义
+0 关闭所有警告
+1 只显示严重警告
+2 级别为1的警告和某些不严重的警告
+3 级别为2的警告和某些不算非常严重的警告
+4 级 别为3的警告和信息警告
+　　例子：编译文件，不显示任何错误
+csc /warn:0 my.cs
+　　二十七./warnaserror
+　　告诉编译器把在编译中把所有的警告当成错误来处理。/warnaserror-是缺省选项，在该选项下编译中的警告不影
+
+响文件的输出。/warnaserror和/warnaserror+是一样的。
+　　例子：编译文件，并在编译中把警告当成错误
+csc /warnaserror myj.cs
+　　二十八./win32icon
+　　在输出文件中插入一个图标文件（.ico）。从而在Windows中的资源管理器中就看到以此图标标识的文件了。
+　　例子：
+csc /win32icon:myicon.ico my.cs
+　　二十九./win32res
+　　在输出文件中添加一个win32的资源文件。此资源文件包括用户应用程序的版本信息或者位图（图标）信息。如果
+
+用户不指定/win32res，编译器将根据汇编版本生成版本信息。
+　　例子：添加一个win32资源文件到输出文件中
+csc /win32res:winrf.res mt.cs
+　　以上就是Csc.exe在编译C#文件中的全部选项。了解并掌握这些选项有时对我们编程是大大有用的
+
+分类: C#
+标签: 编译器, C#
+好文要顶 关注我 收藏该文  
+陈财明博客
+关注 - 60
+粉丝 - 4
++加关注
+00
+posted @ 2017-07-03 13:02  陈财明博客  阅读(648)  评论(0)  编辑  收藏  举报
+刷新评论刷新页面返回顶部
+登录后才能查看或发表评论，立即 登录 或者 逛逛 博客园首页
+【推荐】博客园x阿里云联合征文活动：我修复的印象最深的一个bug
+【推荐】并行超算云面向博客园粉丝推出“免费算力限时申领”特别活动
+【推荐】跨平台组态\工控\仿真\CAD 50万行C++源码全开放免费下载！
+【推荐】HMS Core线上Codelabs挑战赛第3期：用3D建模构建元宇宙
+
+编辑推荐：
+· 一次 fork 引发的惨案！
+· OAuth 2.0 的探险之旅
+· .NET 生态系统的蜕变之 .NET 6
+· 从顶层设计聊公司治理
+· 存储技术发展过程
+最新新闻：
+· 引力波天文台迎来新镜面涂层 有望将LIGO探测范围扩展至全宇宙（2021-11-04 20:03）
+· 微软为阻止Windows 11内置应用打开的过期证书提供解决方案（2021-11-04 19:50）
+· 杨元庆：未来三年研发投入翻番 并将引入1.2万硬核科技人才（2021-11-04 19:35）
+· 中国移动在A股首发申请获证监会通过（2021-11-04 19:20）
+· 500亿美元+星际基地，马斯克离火星还有多远？（2021-11-04 19:12）
+? 更多新闻...
+搜索
+ 
+随笔分类
+C/C++(7)
+Delphi(5)
+MySQL(2)
+Redis(1)
+SVN(4)
+vim(1)
+windows(1)
+计算机原理(1)
+随笔档案
+2018年6月(1)
+2017年10月(1)
+2017年9月(3)
+2017年8月(6)
+2017年7月(9)
+文章分类
+C#(3)
+C/C++(1)
+Delphi(12)
+Git(5)
+linux(3)
+SQL Server(1)
+tomcat(1)
+vim(2)
+Vue(1)
+设计模式(1)
+网络编程(1)
+文章档案
+2020年12月(1)
+2020年11月(2)
+2020年4月(4)
+2019年8月(1)
+2019年7月(1)
+2019年6月(1)
+2019年5月(3)
+2019年3月(2)
+2019年2月(4)
+2018年9月(1)
+2018年4月(1)
+2018年3月(1)
+2017年7月(2)
+2014年7月(3)
+2014年5月(1)
+更多
+阅读排行榜
+1. C++ Socket编程步骤(20727)
+2. Delphi的Socket编程步骤(6266)
+3. 寄存器的英文全称(5981)
+4. .PHONY makefile中的伪目标(4103)
+5. AdvStringGrid使用小结(2490)
+推荐排行榜
+1. Delphi的Socket编程步骤(1)
+Copyright ? 2021 陈财明博客
+Powered by .NET 6 on Kubernetes
